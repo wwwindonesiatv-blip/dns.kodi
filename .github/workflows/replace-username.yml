@@ -1,0 +1,30 @@
+name: Auto Replace USERNAME
+
+on:
+  workflow_dispatch:
+    inputs:
+      new_username:
+        description: 'New GitHub username'
+        required: true
+        default: 'USERNAME'
+
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Replace USERNAME
+        run: |
+          # Replace in all files
+          find . -type f \( -name "*.xml" -o -name "*.md" -o -name "*.html" \) -exec sed -i "s/USERNAME/${{ github.event.inputs.new_username }}/g" {} +
+      
+      - name: Commit Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git diff --quiet && git diff --staged --quiet || git commit -m "🤖 Auto-replace USERNAME with ${{ github.event.inputs.new_username }}"
+          git push
