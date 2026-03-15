@@ -29,7 +29,7 @@ Repository Kodi untuk Auto DNS Changer addon - Khusus Android devices.
 ### Method 2: File Manager (Recommended untuk Firestick)
 
 1. **Di Kodi:** Settings → File Manager → Add source
-2. **URL:** `https://github.com/USERNAME/dns.kodi/raw/main/`
+2. **URL:** `https://github.com/wwwindonesiatv-blip/dns.kodi/raw/main/`
 3. **Name:** `DNS Kodi Repo`
 4. **OK**
 5. **Install:**
