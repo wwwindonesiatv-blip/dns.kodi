@@ -1,14 +1,12 @@
 name: Auto-Zip Addon
 
-# Trigger: Jalan otomatis saat ada perubahan di folder addon
 on:
   push:
     branches:
       - main
     paths:
       - 'script.dns.google.auto/**'
-      - '!script.dns.google.auto/*.md'  # Ignore markdown files
-  workflow_dispatch:  # Bisa trigger manual
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,220 +16,55 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Step 1: Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0  # Full history untuk git operations
       
-      # Step 2: Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
-      # Step 3: Validate addon.xml exists
-      - name: Validate Files
-        run: |
-          echo "🔍 Checking required files..."
-          
-          if [ ! -f "script.dns.google.auto/addon.xml" ]; then
-            echo "❌ Error: script.dns.google.auto/addon.xml not found!"
-            exit 1
-          fi
-          
-          if [ ! -f "script.dns.google.auto/service.py" ]; then
-            echo "❌ Error: script.dns.google.auto/service.py not found!"
-            exit 1
-          fi
-          
-          echo "✅ All required files found"
-      
-      # Step 4: Extract version dari addon.xml (SAFE METHOD)
       - name: Extract Version
         id: version
         run: |
-          echo "📦 Extracting addon version..."
-          
-          # Use Python XML parser (paling aman & akurat)
-          VERSION=$(python3 << 'PYTHON_EOF'
-import xml.etree.ElementTree as ET
-import sys
-
-try:
-    # Parse addon.xml
-    tree = ET.parse('script.dns.google.auto/addon.xml')
-    root = tree.getroot()
-    
-    # Get version attribute dari root <addon> tag
-    version = root.get('version')
-    
-    if not version:
-        print("ERROR: No version attribute found in <addon> tag", file=sys.stderr)
-        sys.exit(1)
-    
-    # Validate version format (X.Y.Z)
-    parts = version.split('.')
-    if len(parts) != 3 or not all(p.isdigit() for p in parts):
-        print(f"ERROR: Invalid version format: {version}", file=sys.stderr)
-        print("Expected format: X.Y.Z (e.g., 1.0.0)", file=sys.stderr)
-        sys.exit(1)
-    
-    # Print version (without newline)
-    print(version, end='')
-    
-except Exception as e:
-    print(f"ERROR: Failed to parse addon.xml: {e}", file=sys.stderr)
-    sys.exit(1)
-PYTHON_EOF
+          VERSION=$(python3 << 'EOF'
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('script.dns.google.auto/addon.xml')
+          print(tree.getroot().get('version'), end='')
+          EOF
           )
-          
-          # Set GitHub Actions output
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "✅ Addon version: $VERSION"
+          echo "📦 Version: $VERSION"
       
-      # Step 5: Verify version output
-      - name: Verify Version
+      - name: Create ZIP
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           
-          echo "================================================"
-          echo "  Addon: Google DNS Auto"
-          echo "  Version: $VERSION"
-          echo "================================================"
-          
-          if [ -z "$VERSION" ]; then
-            echo "❌ Error: Version is empty!"
-            exit 1
-          fi
-          
-          echo "✅ Version verified"
-      
-      # Step 6: Create ZIP file
-      - name: Create ZIP Archive
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          ADDON_NAME="script.dns.google.auto"
-          ZIP_NAME="${ADDON_NAME}-${VERSION}.zip"
-          
-          echo "📦 Creating ZIP: $ZIP_NAME"
-          
-          # Navigate to addon folder
           cd script.dns.google.auto
-          
-          # Create ZIP (exclude unnecessary files)
-          zip -r ../$ZIP_NAME . \
-            -x "*.pyc" \
-            -x "*.pyo" \
-            -x "__pycache__/*" \
-            -x ".git/*" \
-            -x ".gitignore" \
-            -x "*.md" \
-            -x ".DS_Store" \
-            -x "Thumbs.db"
-          
+          zip -r ../script.dns.google.auto-${VERSION}.zip . -x "*.pyc" -x "__pycache__/*" -x ".git/*" -x "*.md"
           cd ..
           
-          # Verify ZIP created
-          if [ ! -f "$ZIP_NAME" ]; then
-            echo "❌ Error: ZIP file not created!"
-            exit 1
-          fi
+          mkdir -p zips/script.dns.google.auto
+          mv script.dns.google.auto-${VERSION}.zip zips/script.dns.google.auto/
+          cp script.dns.google.auto/addon.xml zips/script.dns.google.auto/
           
-          # Show ZIP info
-          echo ""
-          echo "✅ ZIP created successfully!"
-          ls -lh $ZIP_NAME
-          unzip -l $ZIP_NAME | head -20
+          echo "✅ ZIP created: script.dns.google.auto-${VERSION}.zip"
       
-      # Step 7: Organize files in zips folder
-      - name: Organize ZIP Files
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          ADDON_NAME="script.dns.google.auto"
-          ZIP_NAME="${ADDON_NAME}-${VERSION}.zip"
-          
-          echo "📁 Organizing files in zips folder..."
-          
-          # Create directory structure
-          mkdir -p zips/$ADDON_NAME
-          
-          # Move ZIP to zips folder
-          mv $ZIP_NAME zips/$ADDON_NAME/
-          
-          # Copy addon.xml to zips folder
-          cp script.dns.google.auto/addon.xml zips/$ADDON_NAME/
-          
-          echo ""
-          echo "✅ Files organized:"
-          tree zips/$ADDON_NAME -L 2 || ls -lah zips/$ADDON_NAME
-      
-      # Step 8: Check if changes exist
-      - name: Check for Changes
-        id: changes
-        run: |
-          git add zips/
-          
-          if git diff --staged --quiet; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "ℹ️  No changes detected - ZIP already up to date"
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "✅ Changes detected - will commit"
-          fi
-      
-      # Step 9: Commit and push changes
       - name: Commit and Push
-        if: steps.changes.outputs.changed == 'true'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           
-          echo "💾 Committing changes..."
-          
-          # Configure Git
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # Commit
-          git commit -m "🤖 Auto-zip addon v${VERSION}
-
-Generated by GitHub Actions
-Workflow: Auto-Zip Addon
-Run: ${{ github.run_number }}
-
-[skip ci]"
+          git add zips/script.dns.google.auto/*
           
-          # Push
-          git push
-          
-          echo "✅ Changes committed and pushed!"
-      
-      # Step 10: Summary
-      - name: Workflow Summary
-        if: always()
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          CHANGED="${{ steps.changes.outputs.changed }}"
-          
-          echo "================================================"
-          echo "  AUTO-ZIP WORKFLOW SUMMARY"
-          echo "================================================"
-          echo "Addon: Google DNS Auto"
-          echo "Version: $VERSION"
-          echo "ZIP Created: ✅"
-          echo "Changes Committed: $([ "$CHANGED" = "true" ] && echo "✅" || echo "⏭️ Skipped (no changes)")"
-          echo "================================================"
-          echo ""
-          echo "📦 Download ZIP:"
-          echo "https://github.com/${{ github.repository }}/raw/main/zips/script.dns.google.auto/script.dns.google.auto-${VERSION}.zip"
-          echo ""
-          echo "✅ Workflow completed successfully!"
-
-                # Step 11: Trigger Generate Addons Workflow
-      - name: Trigger Generate Addons
-        if: steps.changes.outputs.changed == 'true'
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: addon-zipped
+          if git diff --staged --quiet; then
+            echo "ℹ️  No changes to commit"
+          else
+            git commit -m "🤖 Auto-zip addon v${VERSION} [skip ci]"
+            git push
+            echo "✅ Committed and pushed"
+          fi
