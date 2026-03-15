@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="script.dns.google.auto" version="1.0.0" name="Google DNS Auto" provider-name="Grok_xAI">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+    <extension point="xbmc.service" library="service.py" start="startup"/>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Auto Google DNS 8.8.8.8 (IPv4 + IPv6)</summary>
+        <description lang="en">Otomatis ubah ke Google DNS setiap Kodi start - Tanpa pengaturan, langsung jalan! Support IPv4 + IPv6. Khusus untuk Android (Firestick, Android Box, Shield TV).</description>
+        <platform>android</platform>
+        <news>v1.0.0 (2025-01-21)
+- Initial release
+- Auto-change DNS saat Kodi start
+- Support IPv4 (8.8.8.8) + IPv6 (2001:4860:4860::8888)
+- Tanpa root, tanpa pengaturan
+        </news>
+        <assets>
+            <icon>icon.png</icon>
+        </assets>
+    </extension>
+</addon>
