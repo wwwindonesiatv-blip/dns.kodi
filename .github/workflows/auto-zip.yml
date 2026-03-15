@@ -227,3 +227,11 @@ Run: ${{ github.run_number }}
           echo "https://github.com/${{ github.repository }}/raw/main/zips/script.dns.google.auto/script.dns.google.auto-${VERSION}.zip"
           echo ""
           echo "✅ Workflow completed successfully!"
+
+                # Step 11: Trigger Generate Addons Workflow
+      - name: Trigger Generate Addons
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: addon-zipped
