@@ -21,7 +21,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Get Version
+      - name: Get Version (Python XML Parser)
         id: version
         run: |
           # Check if addon.xml exists
@@ -30,8 +30,23 @@ jobs:
             exit 1
           fi
           
-          # Extract version (trimmed)
-          VERSION=$(grep -oP 'version="\K[^"]+' script.dns.google.auto/addon.xml | tr -d '\n\r')
+          # Extract version using Python XML parser (SAFE!)
+          VERSION=$(python3 << 'EOF'
+import xml.etree.ElementTree as ET
+try:
+    tree = ET.parse('script.dns.google.auto/addon.xml')
+    root = tree.getroot()
+    version = root.get('version')
+    if version:
+        print(version, end='')
+    else:
+        print("ERROR: No version attribute found", file=sys.stderr)
+        exit(1)
+except Exception as e:
+    print(f"ERROR: {e}", file=sys.stderr)
+    exit(1)
+EOF
+          )
           
           # Validate version format
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -61,7 +76,7 @@ jobs:
           echo "Creating ZIP for version $VERSION..."
           
           cd script.dns.google.auto
-          zip -r ../script.dns.google.auto-${VERSION}.zip . -x "*.pyc" -x "__pycache__/*"
+          zip -r ../script.dns.google.auto-${VERSION}.zip . -x "*.pyc" -x "__pycache__/*" -x ".git/*"
           cd ..
           
           # Create zips folder structure
