@@ -18,4 +18,15 @@
             </assets>
         </extension>
     </addon>
+    <addon id="script.dns.google.auto" version="1.0.0" name="Google DNS Auto" provider-name="wwwindonesiatv-blip">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.service" library="service.py" start="startup" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en">Auto Google DNS 8.8.8.8 (IPv4 + IPv6)</summary>
+            <description lang="en">Otomatis ubah ke Google DNS setiap Kodi start</description>
+            <platform>android</platform>
+        </extension>
+    </addon>
 </addons>
