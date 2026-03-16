@@ -32,50 +32,58 @@ jobs:
         run: |
           VERSION=$(python3 << 'EOF'
           import xml.etree.ElementTree as ET
-          import os
-          tree = ET.parse('script.dns.google.auto/addon.xml')
-          print(tree.getroot().get('version'), end='')
+          try:
+              tree = ET.parse('script.dns.google.auto/addon.xml')
+              print(tree.getroot().get('version'), end='')
+          except:
+              print('0.0.1', end='')
           EOF
           )
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Addon version: $VERSION"
       
       - name: Extract Repository Version
         id: repo_version
         run: |
           VERSION=$(python3 << 'EOF'
           import xml.etree.ElementTree as ET
-          tree = ET.parse('addon.xml')
-          print(tree.getroot().get('version'), end='')
+          try:
+              tree = ET.parse('addon.xml')
+              print(tree.getroot().get('version'), end='')
+          except:
+              print('0.0.1', end='')
           EOF
           )
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Repository version: $VERSION"
-      
+
       - name: Create Addon ZIP
         run: |
           VERSION="${{ steps.addon_version.outputs.version }}"
+          mkdir -p zips/script.dns.google.auto
           cd script.dns.google.auto
           zip -r ../script.dns.google.auto-${VERSION}.zip . -x "*.pyc" -x "__pycache__/*" -x ".git/*"
           cd ..
-          mkdir -p zips/script.dns.google.auto
           mv script.dns.google.auto-${VERSION}.zip zips/script.dns.google.auto/
           cp script.dns.google.auto/addon.xml zips/script.dns.google.auto/
       
       - name: Create Repository ZIP
         run: |
           VERSION="${{ steps.repo_version.outputs.version }}"
+          ZIP_NAME="repository.dns.kodi-${VERSION}.zip"
           mkdir -p temp_repo
           cp addon.xml temp_repo/
           cp icon.png temp_repo/ 2>/dev/null || true
           cp fanart.jpg temp_repo/ 2>/dev/null || true
+          
           cd temp_repo
-          zip -r ../repository.dns.kodi-${VERSION}.zip .
+          zip -r "../$ZIP_NAME" .
           cd ..
+          
           mkdir -p zips/repository.dns.kodi
-          cp repository.dns.kodi-${VERSION}.zip zips/repository.dns.kodi/
-          cp repository.dns.kodi-${VERSION}.zip ./
-          cp addon.xml zips/repository.dns.kodi/
+          # Gunakan 'cp -u' (update) untuk skip jika file sama/identik
+          cp -u "$ZIP_NAME" zips/repository.dns.kodi/ 2>/dev/null || true
+          cp -u addon.xml zips/repository.dns.kodi/ 2>/dev/null || true
+          
+          # Hapus temp agar bersih
           rm -rf temp_repo
       
       - name: Generate addons.xml and MD5
@@ -85,79 +93,43 @@ jobs:
           from pathlib import Path
           import hashlib
 
-          print("=" * 60)
-          print("  Generating addons.xml and MD5 checksum")
-          print("=" * 60)
-
           addons_xml = ET.Element('addons')
           zips_path = Path('zips')
-          addons_found = 0
+          
+          if not zips_path.exists():
+              zips_path.mkdir()
 
-          if zips_path.exists():
-              for addon_folder in sorted(zips_path.iterdir()):
-                  if not addon_folder.is_dir():
-                      continue
-                  
-                  addon_xml_path = addon_folder / 'addon.xml'
-                  
-                  if addon_xml_path.exists():
-                      print(f"\n📦 Found: {addon_folder.name}")
-                      tree = ET.parse(addon_xml_path)
-                      addon = tree.getroot()
-                      addons_xml.append(addon)
-                      addons_found += 1
+          for addon_folder in sorted(zips_path.iterdir()):
+              if addon_folder.is_dir():
+                  xml_file = addon_folder / 'addon.xml'
+                  if xml_file.exists():
+                      tree = ET.parse(xml_file)
+                      addons_xml.append(tree.getroot())
 
           tree = ET.ElementTree(addons_xml)
-          if hasattr(ET, 'indent'):
-              ET.indent(tree, space="    ")
-          addons_xml_out = zips_path / 'addons.xml'
-          tree.write(addons_xml_out, encoding='UTF-8', xml_declaration=True)
-
-          with open(addons_xml_out, 'rb') as f:
-              md5_hash = hashlib.md5(f.read()).hexdigest()
-          with open(str(addons_xml_out) + '.md5', 'w') as f:
-              f.write(md5_hash)
-
-          print(f"\n✅ Done! Total addons: {addons_found}")
+          if hasattr(ET, 'indent'): ET.indent(tree, space="    ")
+          
+          out_path = zips_path / 'addons.xml'
+          tree.write(out_path, encoding='UTF-8', xml_declaration=True)
+          
+          with open(out_path, 'rb') as f:
+              m = hashlib.md5(f.read()).hexdigest()
+          with open(str(out_path) + '.md5', 'w') as f:
+              f.write(m)
           PYTHON_SCRIPT
       
       - name: Commit and Push Changes
         run: |
-          ADDON_VER="${{ steps.addon_version.outputs.version }}"
-          REPO_VER="${{ steps.repo_version.outputs.version }}"
-          
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
           git add zips/
-          git add repository.dns.kodi-*.zip
+          git add repository.dns.kodi-*.zip 2>/dev/null || true
           
           if git diff --staged --quiet; then
             echo "ℹ️ No changes to commit"
           else
-            # Menggunakan heredoc agar pesan commit multiline tidak merusak YAML
-            git commit -m "🤖 Auto-update release files
-
-          Addon: v${ADDON_VER}
-          Repository: v${REPO_VER}
-
-          Files updated:
-          - addons.xml (regenerated)
-          - addons.xml.md5 (auto-generated) ✅
-          - addon ZIPs
-          - repository ZIP (root)
-
-          [skip ci]"
+            git commit -m "🤖 Auto-update release files [skip ci]"
             git push
             echo "✅ Changes committed and pushed"
           fi
-      
-      - name: Workflow Summary
-        run: |
-          echo "================================================"
-          echo "  AUTO-ZIP AND DEPLOY SUMMARY"
-          echo "================================================"
-          echo "📦 Addon: v${{ steps.addon_version.outputs.version }}"
-          echo "📦 Repository: v${{ steps.repo_version.outputs.version }}"
-          echo "✅ addons.xml & MD5: Generated"
-          echo "================================================"
