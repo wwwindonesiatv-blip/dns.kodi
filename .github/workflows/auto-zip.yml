@@ -1,4 +1,4 @@
-name: Auto-Zip Addon
+name: Auto-Zip and Deploy
 
 on:
   push:
@@ -6,13 +6,14 @@ on:
       - main
     paths:
       - 'script.dns.google.auto/**'
+      - 'addon.xml'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  auto-zip:
+  build:
     runs-on: ubuntu-latest
     
     steps:
@@ -20,14 +21,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
       
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
-      - name: Extract Version
-        id: version
+      # ========================================
+      # STEP 1: Extract Versions
+      # ========================================
+      - name: Extract Addon Version
+        id: addon_version
         run: |
           VERSION=$(python3 << 'EOF'
           import xml.etree.ElementTree as ET
@@ -36,12 +41,28 @@ jobs:
           EOF
           )
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Version: $VERSION"
+          echo "📦 Addon version: $VERSION"
       
-      - name: Create ZIP
+      - name: Extract Repository Version
+        id: repo_version
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          VERSION=$(python3 << 'EOF'
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('addon.xml')
+          print(tree.getroot().get('version'), end='')
+          EOF
+          )
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Repository version: $VERSION"
+      
+      # ========================================
+      # STEP 2: Create Addon ZIP
+      # ========================================
+      - name: Create Addon ZIP
+        run: |
+          VERSION="${{ steps.addon_version.outputs.version }}"
           
+          echo "📦 Creating addon ZIP..."
           cd script.dns.google.auto
           zip -r ../script.dns.google.auto-${VERSION}.zip . -x "*.pyc" -x "__pycache__/*" -x ".git/*" -x "*.md"
           cd ..
@@ -50,21 +71,223 @@ jobs:
           mv script.dns.google.auto-${VERSION}.zip zips/script.dns.google.auto/
           cp script.dns.google.auto/addon.xml zips/script.dns.google.auto/
           
-          echo "✅ ZIP created: script.dns.google.auto-${VERSION}.zip"
+          echo "✅ Addon ZIP created"
       
-      - name: Commit and Push
+      # ========================================
+      # STEP 3: Create Repository ZIP
+      # ========================================
+      - name: Create Repository ZIP
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${{ steps.repo_version.outputs.version }}"
+          
+          echo "📦 Creating repository ZIP..."
+          
+          # Create temp folder
+          mkdir -p temp_repo
+          cp addon.xml temp_repo/
+          cp icon.png temp_repo/ 2>/dev/null || echo "No icon.png"
+          cp fanart.jpg temp_repo/ 2>/dev/null || echo "No fanart.jpg"
+          
+          # Create ZIP
+          cd temp_repo
+          zip -r ../repository.dns.kodi-${VERSION}.zip .
+          cd ..
+          
+          # Move to zips folder
+          mkdir -p zips/repository.dns.kodi
+          cp repository.dns.kodi-${VERSION}.zip zips/repository.dns.kodi/
+          cp addon.xml zips/repository.dns.kodi/
+          cp icon.png zips/repository.dns.kodi/ 2>/dev/null || echo "No icon"
+          cp fanart.jpg zips/repository.dns.kodi/ 2>/dev/null || echo "No fanart"
+          
+          # Clean up
+          rm -rf temp_repo
+          
+          echo "✅ Repository ZIP created"
+      
+      # ========================================
+      # STEP 4: Copy Repository ZIP to Root
+      # ========================================
+      - name: Copy Repository ZIP to Root
+        run: |
+          VERSION="${{ steps.repo_version.outputs.version }}"
+          
+          echo "📋 Copying repository ZIP to root..."
+          cp zips/repository.dns.kodi/repository.dns.kodi-${VERSION}.zip ./
+          
+          echo "✅ Repository ZIP copied to root"
+          ls -lh repository.dns.kodi-${VERSION}.zip
+      
+      # ========================================
+      # STEP 5: Generate addons.xml
+      # ========================================
+      - name: Generate addons.xml
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+import xml.etree.ElementTree as ET
+from pathlib import Path
+import hashlib
+
+print("🔧 Generating addons.xml...")
+
+# Create root element
+addons_xml = ET.Element('addons')
+
+# Scan zips folder
+zips_path = Path('zips')
+addons_found = 0
+
+for addon_folder in sorted(zips_path.iterdir()):
+    if not addon_folder.is_dir():
+        continue
+    
+    addon_xml_path = addon_folder / 'addon.xml'
+    
+    if addon_xml_path.exists():
+        print(f"📦 Found: {addon_folder.name}")
+        tree = ET.parse(addon_xml_path)
+        addon = tree.getroot()
+        
+        # Get info
+        addon_id = addon.get('id')
+        addon_version = addon.get('version')
+        addon_name = addon.get('name')
+        
+        print(f"   ID: {addon_id}")
+        print(f"   Version: {addon_version}")
+        
+        addons_xml.append(addon)
+        addons_found += 1
+
+# Save addons.xml
+tree = ET.ElementTree(addons_xml)
+ET.indent(tree, space="    ")
+tree.write('zips/addons.xml', encoding='UTF-8', xml_declaration=True)
+
+print(f"\n✅ addons.xml generated ({addons_found} addons)")
+
+# Generate MD5
+with open('zips/addons.xml', 'rb') as f:
+    md5 = hashlib.md5(f.read()).hexdigest()
+
+with open('zips/addons.xml.md5', 'w') as f:
+    f.write(md5)
+
+print(f"✅ MD5: {md5}")
+PYTHON_SCRIPT
+      
+      # ========================================
+      # STEP 6: Commit and Push
+      # ========================================
+      - name: Commit and Push Changes
+        run: |
+          ADDON_VER="${{ steps.addon_version.outputs.version }}"
+          REPO_VER="${{ steps.repo_version.outputs.version }}"
           
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          git add zips/script.dns.google.auto/*
+          # Add all changes
+          git add zips/
+          git add repository.dns.kodi-*.zip
           
+          # Check if there are changes
           if git diff --staged --quiet; then
             echo "ℹ️  No changes to commit"
           else
-            git commit -m "🤖 Auto-zip addon v${VERSION} [skip ci]"
+            git commit -m "🤖 Auto-update release files
+
+Addon version: ${ADDON_VER}
+Repository version: ${REPO_VER}
+
+Changes:
+- Updated addon ZIP
+- Updated repository ZIP (root level)
+- Regenerated addons.xml
+- Updated MD5 checksum
+
+[skip ci]"
             git push
-            echo "✅ Committed and pushed"
+            echo "✅ Changes committed and pushed"
           fi
+      
+      # ========================================
+      # STEP 7: Create GitHub Release (Optional)
+      # ========================================
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.addon_version.outputs.version }}
+          name: Release v${{ steps.addon_version.outputs.version }}
+          body: |
+            ## 🎉 New Release: Google DNS Auto v${{ steps.addon_version.outputs.version }}
+            
+            ### 📦 Downloads
+            
+            **Repository:**
+            - [repository.dns.kodi-${{ steps.repo_version.outputs.version }}.zip](https://github.com/${{ github.repository }}/releases/download/v${{ steps.addon_version.outputs.version }}/repository.dns.kodi-${{ steps.repo_version.outputs.version }}.zip)
+            
+            **Addon:**
+            - [script.dns.google.auto-${{ steps.addon_version.outputs.version }}.zip](https://github.com/${{ github.repository }}/releases/download/v${{ steps.addon_version.outputs.version }}/script.dns.google.auto-${{ steps.addon_version.outputs.version }}.zip)
+            
+            ### 📋 Installation
+            
+            **File Manager Method:**
+            ```
+            URL: https://${{ github.repository_owner }}.github.io/dns.kodi/
+            ```
+            
+            **Direct Download:**
+            ```
+            https://${{ github.repository_owner }}.github.io/dns.kodi/repository.dns.kodi-${{ steps.repo_version.outputs.version }}.zip
+            ```
+            
+            ---
+            Auto-generated by GitHub Actions
+          files: |
+            repository.dns.kodi-${{ steps.repo_version.outputs.version }}.zip
+            zips/script.dns.google.auto/script.dns.google.auto-${{ steps.addon_version.outputs.version }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      # ========================================
+      # STEP 8: Summary
+      # ========================================
+      - name: Workflow Summary
+        run: |
+          ADDON_VER="${{ steps.addon_version.outputs.version }}"
+          REPO_VER="${{ steps.repo_version.outputs.version }}"
+          
+          echo "================================================"
+          echo "  AUTO-ZIP AND DEPLOY SUMMARY"
+          echo "================================================"
+          echo ""
+          echo "📦 Addon Version: ${ADDON_VER}"
+          echo "📦 Repository Version: ${REPO_VER}"
+          echo ""
+          echo "✅ Addon ZIP: zips/script.dns.google.auto/script.dns.google.auto-${ADDON_VER}.zip"
+          echo "✅ Repository ZIP (zips): zips/repository.dns.kodi/repository.dns.kodi-${REPO_VER}.zip"
+          echo "✅ Repository ZIP (root): repository.dns.kodi-${REPO_VER}.zip"
+          echo "✅ addons.xml: Generated"
+          echo "✅ addons.xml.md5: Generated"
+          echo ""
+          echo "================================================"
+          echo "  DOWNLOAD LINKS"
+          echo "================================================"
+          echo ""
+          echo "🌐 Website:"
+          echo "https://${{ github.repository_owner }}.github.io/dns.kodi/"
+          echo ""
+          echo "📦 Repository ZIP (Root):"
+          echo "https://${{ github.repository_owner }}.github.io/dns.kodi/repository.dns.kodi-${REPO_VER}.zip"
+          echo ""
+          echo "📦 Repository ZIP (GitHub):"
+          echo "https://github.com/${{ github.repository }}/raw/main/repository.dns.kodi-${REPO_VER}.zip"
+          echo ""
+          echo "📥 File Manager Source:"
+          echo "https://${{ github.repository_owner }}.github.io/dns.kodi/"
+          echo ""
+          echo "================================================"
