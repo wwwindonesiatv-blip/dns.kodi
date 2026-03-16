@@ -22,36 +22,31 @@ jobs:
 
       - name: Create Structure and ZIPs
         run: |
-          # 1. Persiapkan folder output untuk GitHub Pages
+          # 1. Buat folder docs/zips secara otomatis
           mkdir -p docs/zips
           
-          # 2. Identifikasi ID dan Versi Addon
+          # 2. Proses Addon
           ADDON_ID="script.dns.google.auto"
-          # Mengambil versi langsung dari addon.xml milik addon
           ADDON_VER=$(grep -oP '(?<=version=")[^"]*' $ADDON_ID/addon.xml | head -1)
           
-          # 3. Proses Packaging Addon (Memastikan service.py ikut masuk)
-          echo "📦 Packaging $ADDON_ID v$ADDON_VER"
-          # Masuk ke folder agar struktur ZIP tidak memiliki folder induk ganda
           cd $ADDON_ID
           zip -r "../$ADDON_ID-$ADDON_VER.zip" . -x "*.git*" "*.pyc" "__pycache__/*"
           cd ..
           
-          # Pindahkan ke docs dan buat folder metadata
           mkdir -p "docs/zips/$ADDON_ID"
           mv "$ADDON_ID-$ADDON_VER.zip" "docs/zips/$ADDON_ID/"
           cp "$ADDON_ID/addon.xml" "docs/zips/$ADDON_ID/"
 
-          # 4. Proses Packaging Repository
+          # 3. Proses Repository
           REPO_ID="repository.dns.google"
-          # Mengambil versi dari addon.xml yang ada di root (untuk repo)
           REPO_VER=$(grep -oP '(?<=version=")[^"]*' addon.xml | head -1)
           
           mkdir -p temp_repo
           cp addon.xml icon.png fanart.jpg temp_repo/ 2>/dev/null || true
           
           cd temp_repo
-          zip -r "../../docs/zips/$REPO_ID-$REPO_VER.zip" .
+          # Jalur diperbaiki: Hanya naik satu tingkat ke ../docs
+          zip -r "../docs/zips/$REPO_ID-$REPO_VER.zip" .
           cd ..
           
           mkdir -p "docs/zips/$REPO_ID"
@@ -67,34 +62,25 @@ jobs:
           zips_path = "docs/zips"
           addons_root = ET.Element("addons")
           
-          # Cari semua addon.xml di dalam subfolder zips
           for root, dirs, files in os.walk(zips_path):
               if "addon.xml" in files:
                   path = os.path.join(root, "addon.xml")
-                  try:
-                      tree = ET.parse(path)
-                      addons_root.append(tree.getroot())
-                      print(f"✅ Added to addons.xml: {path}")
-                  except Exception as e:
-                      print(f"❌ Error parsing {path}: {e}")
+                  tree = ET.parse(path)
+                  addons_root.append(tree.getroot())
           
-          # Simpan addons.xml dengan indentasi yang rapi
           tree = ET.ElementTree(addons_root)
-          if hasattr(ET, 'indent'):
-              ET.indent(tree, space="  ")
+          if hasattr(ET, 'indent'): ET.indent(tree, space="  ")
           
           xml_out = os.path.join(zips_path, "addons.xml")
           tree.write(xml_out, encoding="UTF-8", xml_declaration=True)
           
-          # Generate MD5 Checksum
           with open(xml_out, "rb") as f:
-              md5_hash = hashlib.md5(f.read()).hexdigest()
+              md5 = hashlib.md5(f.read()).hexdigest()
           with open(xml_out + ".md5", "w") as f:
-              f.write(md5_hash)
-          print(f"✅ Generated MD5: {md5_hash}")
+              f.write(md5)
           EOF
 
-      - name: Create Index Page (Landing Page)
+      - name: Create Index Page
         run: |
           REPO_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/zips/"
           cat <<EOF > docs/index.html
@@ -107,34 +93,22 @@ jobs:
                   body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 40px; }
                   .box { background: #1e1e1e; padding: 20px; border-radius: 10px; display: inline-block; border: 1px solid #333; }
                   .url { color: #00ff00; font-family: monospace; font-size: 1.2em; background: #000; padding: 10px; margin: 15px 0; }
-                  li { text-align: left; margin-bottom: 8px; }
               </style>
           </head>
           <body>
               <div class="box">
                   <h1>Google DNS Repository</h1>
-                  <p>Salin URL ini ke File Manager Kodi:</p>
+                  <p>URL File Manager Kodi:</p>
                   <div class="url">$REPO_URL</div>
-                  <div style="text-align:left; max-width:500px;">
-                      <h3>Cara Install:</h3>
-                      <ol>
-                          <li>Settings > File Manager > Add Source.</li>
-                          <li>Masukkan URL di atas, beri nama <b>.GoogleDNS</b>.</li>
-                          <li>Add-ons > Install from zip file > pilih <b>.GoogleDNS</b>.</li>
-                          <li>Pilih repository.dns.google.zip.</li>
-                          <li>Install from repository > Google DNS Repo > Services > Google DNS Auto.</li>
-                      </ol>
-                  </div>
               </div>
           </body>
           </html>
           EOF
 
-      - name: Commit and Push to Pages
+      - name: Deploy to GitHub Pages
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add docs/
-          # Menggunakan || true agar workflow tidak error jika tidak ada perubahan file
-          git commit -m "🚀 Deploy update: v$(date +'%Y%m%d%H%M') [skip ci]" || echo "No changes to commit"
+          git commit -m "🚀 Auto-deploy update [skip ci]" || echo "No changes"
           git push
