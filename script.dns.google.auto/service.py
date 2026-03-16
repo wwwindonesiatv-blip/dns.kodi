@@ -1,4 +1,3 @@
-# type: ignore
 import xbmc
 import os
 import time
