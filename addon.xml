@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<addon id="repository.dns.kodi" name="DNS Kodi Repository" version="1.0.0" provider-name="wwwindonesiatv-blip">
-    <extension point="xbmc.addon.repository" name="DNS Kodi Repository">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.dns.google" name="Google DNS Repository" version="1.0.0" provider-name="Grok_xAI">
+    <extension point="xbmc.addon.repository" name="Google DNS Repository">
         <dir>
-            <info compressed="false">https://raw.githubusercontent.com/wwwindonesiatv-blip/dns.kodi/main/zips/addons.xml</info>
-            <checksum>https://raw.githubusercontent.com/wwwindonesiatv-blip/dns.kodi/main/zips/addons.xml.md5</checksum>
-            <datadir zip="true">https://raw.githubusercontent.com/wwwindonesiatv-blip/dns.kodi/main/zips/</datadir>
+            <info compressed="false">https://wwwindonesiatv-blip.github.io/YOUR_REPO_NAME/zips/addons.xml</info>
+            <checksum>https://wwwindonesiatv-blip.github.io/YOUR_REPO_NAME/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://wwwindonesiatv-blip.github.io/YOUR_REPO_NAME/zips/</datadir>
         </dir>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary>Repository untuk Auto DNS Changer</summary>
-        <description>Install addon Google DNS Auto langsung dari repository ini. Otomatis ubah DNS ke Google 8.8.8.8 setiap Kodi start (khusus Android).</description>
+        <summary>Repo untuk Auto Google DNS</summary>
+        <description>Repository ini menyediakan update otomatis untuk script Auto Google DNS (IPv4 &amp; IPv6) di Android.</description>
         <platform>all</platform>
         <assets>
             <icon>icon.png</icon>
