@@ -3,176 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DNS Kodi Repository - Auto DNS Changer</title>
-    <meta name="description" content="Kodi Repository untuk Auto DNS Changer - Ubah DNS otomatis ke Google 8.8.8.8">
+    <title>DNS Kodi Repository - Installation</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header>
-            <div class="logo">
-                <h1>🌐 DNS Kodi Repository</h1>
-                <p>Auto DNS Changer for Android Devices</p>
-            </div>
-            <nav>
-                <a href="#features">Features</a>
-                <a href="#install">Install</a>
-                <a href="#download">Download</a>
-                <a href="https://github.com/wwwindonesiatv-blip/dns.kodi" target="_blank">GitHub</a>
-            </nav>
+            <h1>🌐 DNS Kodi Repository</h1>
+            <p>Auto DNS Changer for Android Devices</p>
         </header>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <h2>Otomatis Ubah DNS ke Google 8.8.8.8</h2>
-            <p class="subtitle">Setiap kali Kodi start - Tanpa root, tanpa pengaturan</p>
-            
-            <div class="install-buttons">
-                <a href="#install" class="btn btn-primary">📥 Install Now</a>
-                <a href="install.html" class="btn btn-secondary">📖 Guide</a>
-            </div>
-
-            <!-- QR Code -->
-            <div class="qr-section">
-                <p>Scan QR Code di Android/Firestick:</p>
-                <div id="qrcode"></div>
-                <p class="qr-url">Click to copy URL</p>
-            </div>
-        </section>
-
-        <!-- Features -->
-        <section id="features" class="features">
-            <h2>✨ Features</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="icon">🚀</div>
-                    <h3>Auto-Start</h3>
-                    <p>DNS otomatis berubah setiap Kodi dibuka</p>
-                </div>
-                <div class="feature-card">
-                    <div class="icon">🌍</div>
-                    <h3>IPv4 + IPv6</h3>
-                    <p>Support dual-stack DNS</p>
-                </div>
-                <div class="feature-card">
-                    <div class="icon">🔒</div>
-                    <h3>No Root</h3>
-                    <p>Pakai Android Private DNS API</p>
-                </div>
-                <div class="feature-card">
-                    <div class="icon">📱</div>
-                    <h3>All Devices</h3>
-                    <p>Firestick, Android Box, Shield TV</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Installation -->
-        <section id="install" class="installation">
+        <section class="installation">
             <h2>📥 Quick Install</h2>
             
+            <!-- Method 1: File Manager -->
             <div class="install-method">
-                <h3>Method 1: One-Click Install (Recommended)</h3>
+                <h3>Method 1: File Manager Source</h3>
+                <ol>
+                    <li>Open Kodi → <code>Settings</code> → <code>File Manager</code></li>
+                    <li>Click <code>Add source</code></li>
+                    <li>URL: <code class="highlight">https://USERNAME.github.io/dns.kodi/</code></li>
+                    <li>Name: <code>DNS Kodi Repo</code></li>
+                    <li>Click <code>OK</code></li>
+                    <li>Go to <code>Add-ons</code> → <code>Install from zip file</code></li>
+                    <li>Select <code>DNS Kodi Repo</code> → <code>zips</code> → <code>repository.dns.kodi</code></li>
+                    <li>Install <code>repository.dns.kodi-1.0.0.zip</code></li>
+                    <li>Wait for notification: <strong>"Repository enabled"</strong></li>
+                </ol>
+            </div>
+
+            <!-- Method 2: Direct Download -->
+            <div class="install-method">
+                <h3>Method 2: Direct Download</h3>
                 <ol>
                     <li>Download repository ZIP:
-                        <a href="https://github.com/wwwindonesiatv-blip/dns.kodi/raw/main/zips/repository.dns.kodi/repository.dns.kodi-1.0.0.zip" 
+                        <a href="https://USERNAME.github.io/dns.kodi/zips/repository.dns.kodi/repository.dns.kodi-1.0.0.zip" 
                            class="download-link" download>
                             📦 repository.dns.kodi-1.0.0.zip
                         </a>
                     </li>
-                    <li>Di Kodi: <code>Add-ons → Install from zip file</code></li>
-                    <li>Pilih file ZIP yang didownload</li>
-                    <li>Tunggu notifikasi "Repository enabled"</li>
-                    <li>Install addon: <code>Add-ons → Install from repository → DNS Kodi Repository → Services</code></li>
+                    <li>Open Kodi → <code>Add-ons</code> → <code>Install from zip file</code></li>
+                    <li>Navigate to downloaded ZIP</li>
+                    <li>Install and wait for confirmation</li>
                 </ol>
             </div>
 
+            <!-- Method 3: One-Line Install (Advanced) -->
             <div class="install-method">
-                <h3>Method 2: File Manager (Untuk Firestick)</h3>
-                <ol>
-                    <li>Di Kodi: <code>Settings → File Manager → Add source</code></li>
-                    <li>URL: <code class="highlight">https://raw.githubusercontent.com/wwwindonesiatv-blip/dns.kodi/main/</code></li>
-                    <li>Name: <code>DNS Kodi Repo</code></li>
-                    <li>Install: <code>Add-ons → Install from zip → DNS Kodi Repo → zips → repository.dns.kodi</code></li>
-                </ol>
+                <h3>Method 3: Command Line (Advanced)</h3>
+                <p>Copy dan paste ke Kodi Add-on Browser URL:</p>
+                <code class="one-liner">https://USERNAME.github.io/dns.kodi/zips/repository.dns.kodi/repository.dns.kodi-1.0.0.zip</code>
             </div>
         </section>
 
-        <!-- Downloads -->
-        <section id="download" class="downloads">
-            <h2>📦 Downloads</h2>
-            
-            <div class="download-grid">
-                <div class="download-card">
-                    <h3>Repository</h3>
-                    <p>DNS Kodi Repository</p>
-                    <p class="version">v1.0.0</p>
-                    <a href="https://github.com/wwwindonesiatv-blip/dns.kodi/raw/main/zips/repository.dns.kodi/repository.dns.kodi-1.0.0.zip" 
-                       class="btn btn-download" download>
-                        Download ZIP
-                    </a>
-                </div>
-                
-                <div class="download-card">
-                    <h3>Addon</h3>
-                    <p>Google DNS Auto</p>
-                    <p class="version">v1.0.0</p>
-                    <a href="https://github.com/wwwindonesiatv-blip/dns.kodi/raw/main/zips/script.dns.google.auto/script.dns.google.auto-1.0.0.zip" 
-                       class="btn btn-download" download>
-                        Download ZIP
-                    </a>
-                </div>
+        <!-- After Install Instructions -->
+        <section class="post-install">
+            <h2>📦 Install Addon from Repository</h2>
+            <ol>
+                <li><code>Add-ons</code> → <code>Install from repository</code></li>
+                <li>Select <strong>DNS Kodi Repository</strong></li>
+                <li><code>Services</code> → <strong>Google DNS Auto</strong></li>
+                <li>Click <code>Install</code></li>
+                <li>Restart Kodi → DNS automatically changes!</li>
+            </ol>
+        </section>
+
+        <!-- Copy-Paste URL Box -->
+        <section class="copy-url">
+            <h2>📋 Repository URL (Copy This)</h2>
+            <div class="url-box">
+                <input type="text" 
+                       value="https://USERNAME.github.io/dns.kodi/" 
+                       id="repoUrl" 
+                       readonly>
+                <button onclick="copyUrl()">📋 Copy</button>
             </div>
         </section>
 
-        <!-- Supported Devices -->
-        <section class="devices">
-            <h2>📱 Supported Devices</h2>
-            <div class="device-list">
-                <div class="device">✅ Amazon Firestick</div>
-                <div class="device">✅ Android TV Box</div>
-                <div class="device">✅ NVIDIA Shield TV</div>
-                <div class="device">✅ MECOOL</div>
-                <div class="device">✅ Mi Box</div>
-                <div class="device">✅ Chromecast with Google TV</div>
-            </div>
-        </section>
-
-        <!-- FAQ -->
-        <section class="faq">
-            <h2>❓ FAQ</h2>
-            
-            <div class="faq-item">
-                <h3>Apakah perlu root?</h3>
-                <p>Tidak! Addon ini pakai Android Private DNS API (Android 9+)</p>
-            </div>
-            
-            <div class="faq-item">
-                <h3>Cara cek DNS sudah berubah?</h3>
-                <p>Buka browser → <a href="https://www.dnsleaktest.com" target="_blank">dnsleaktest.com</a> → Harus muncul "Google LLC"</p>
-            </div>
-            
-            <div class="faq-item">
-                <h3>Cara disable addon?</h3>
-                <p>Add-ons → My add-ons → Services → Google DNS Auto → Disable</p>
-            </div>
-        </section>
-
-        <!-- Footer -->
         <footer>
-            <p>Made with ❤️ by wwwindonesiatv-blip</p>
-            <p>
-                <a href="https://github.com/wwwindonesiatv-blip/dns.kodi">GitHub</a> | 
-                <a href="https://github.com/wwwindonesiatv-blip/dns.kodi/issues">Report Issue</a> | 
-                <a href="install.html">Installation Guide</a>
-            </p>
-            <p class="license">MIT License</p>
+            <p>Made with ❤️ for Kodi Community</p>
         </footer>
     </div>
 
-    <!-- QR Code Generator -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="js/main.js"></script>
+    <script>
+        function copyUrl() {
+            const input = document.getElementById('repoUrl');
+            input.select();
+            document.execCommand('copy');
+            alert('✅ URL copied to clipboard!');
+        }
+    </script>
 </body>
 </html>
