@@ -1,0 +1,82 @@
+name: Kodi Repo Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Create Structure and ZIPs
+        run: |
+          # 1. Buat folder hasil (zips)
+          mkdir -p docs/zips
+          
+          # 2. Ambil versi addon
+          ADDON_ID="script.dns.google.auto"
+          ADDON_VER=$(grep -oP '(?<=version=")[^"]*' $ADDON_ID/addon.xml | head -1)
+          
+          # 3. Proses ZIP Addon (Pastikan service.py masuk)
+          echo "📦 Packaging $ADDON_ID v$ADDON_VER"
+          zip -r "docs/zips/$ADDON_ID-$ADDON_VER.zip" "$ADDON_ID/" -x "*.git*"
+          cp "$ADDON_ID/addon.xml" "docs/zips/$ADDON_ID/addon.xml" || mkdir -p "docs/zips/$ADDON_ID" && cp "$ADDON_ID/addon.xml" "docs/zips/$ADDON_ID/"
+
+          # 4. Proses ZIP Repository
+          REPO_ID="repository.dns.google"
+          REPO_VER=$(grep -oP '(?<=version=")[^"]*' addon.xml | head -1)
+          mkdir -p temp_repo
+          cp addon.xml icon.png fanart.jpg temp_repo/ 2>/dev/null || true
+          cd temp_repo && zip -r "../../docs/zips/$REPO_ID-$REPO_VER.zip" . && cd ..
+          
+          mkdir -p "docs/zips/$REPO_ID"
+          cp addon.xml "docs/zips/$REPO_ID/"
+
+      - name: Generate addons.xml & MD5
+        run: |
+          python3 << 'EOF'
+          import os, hashlib
+          import xml.etree.ElementTree as ET
+          
+          zips_path = "docs/zips"
+          addons_root = ET.Element("addons")
+          
+          for root, dirs, files in os.walk(zips_path):
+              for file in files:
+                  if file == "addon.xml":
+                      path = os.path.join(root, file)
+                      tree = ET.parse(path)
+                      addons_root.append(tree.getroot())
+          
+          # Simpan addons.xml
+          tree = ET.ElementTree(addons_root)
+          ET.indent(tree, space="  ")
+          xml_out = os.path.join(zips_path, "addons.xml")
+          tree.write(xml_out, encoding="UTF-8", xml_declaration=True)
+          
+          # Buat MD5
+          with open(xml_out, "rb") as f:
+              md5 = hashlib.md5(f.read()).hexdigest()
+          with open(xml_out + ".md5", "w") as f:
+              f.write(md5)
+          EOF
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/
+          git commit -m "🚀 Update Repo & Addons [skip ci]" || echo "No changes"
+          git push
