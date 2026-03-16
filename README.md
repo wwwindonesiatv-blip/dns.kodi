@@ -20,7 +20,7 @@ Repository Kodi untuk Auto DNS Changer addon - Khusus Android devices.
 ### Method 1: Download ZIP (Paling Mudah) ⭐
 
 1. **Download file ini:**
-
+- https://wwwindonesiatv-blip.github.io/dns.kodi/
 2. **Install di Kodi:**
 - Add-ons → Install from zip file
 - Pilih file ZIP yang didownload
@@ -68,5 +68,5 @@ Via ADB:
 adb shell settings get global private_dns_specifier
 # Output: dns.google
 
-**B:** 
+**B:**
 https://www.dnsleaktest.com
