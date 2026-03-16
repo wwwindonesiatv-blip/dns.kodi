@@ -1,72 +1,40 @@
-# DNS Kodi Repository
+# 🌐 Google DNS Auto-Switch for Kodi (Android)
 
-Repository Kodi untuk Auto DNS Changer addon - Khusus Android devices.
+[![Kodi Repo Deploy](https://github.com/wwwindonesiatv-blip/dns.kodi/actions/workflows/deploy.yml/badge.svg)](https://github.com/wwwindonesiatv-blip/dns.kodi/actions)
+[![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com/)
 
-![Kodi](https://img.shields.io/badge/Kodi-20%2B-blue)
-![Platform](https://img.shields.io/badge/Platform-Android-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+Repositori ini menyediakan update otomatis untuk addon **Google DNS Auto**. Addon ini dirancang khusus untuk pengguna Kodi di perangkat Android guna memastikan koneksi internet selalu menggunakan Google DNS (IPv4 & IPv6).
 
-## 📦 Addon yang Tersedia
+## 🚀 Fitur Utama
+- **Otomatis:** Mengubah setting DNS sistem Android saat Kodi dijalankan.
+- **Support Modern Android:** Menggunakan mode `Private DNS` (DNS-over-TLS) dengan hostname `dns.google`.
+- **Tanpa Pengaturan:** Cukup install dan aktifkan, script akan bekerja di latar belakang.
+- **Auto-Update:** Repositori ini akan memberikan update otomatis ke Kodi Anda jika ada versi baru.
 
-### Google DNS Auto v1.0.0
-- ✅ Otomatis ubah DNS ke Google DNS (8.8.8.8) setiap Kodi start
-- ✅ Support IPv4 (8.8.8.8) + IPv6 (2001:4860:4860::8888)
-- ✅ Khusus Android (Firestick, Android Box, Shield TV, MECOOL)
-- ✅ Tanpa root, tanpa pengaturan manual
-- ✅ Background service - jalan otomatis
+## 🛠️ Cara Instalasi di Kodi
+Untuk mendapatkan update otomatis, disarankan menginstal melalui alamat Repository:
 
-## 🚀 Cara Install Repository
+1. Buka **Kodi** > **Settings** (ikon Gear).
+2. Pilih **File Manager** > **Add Source**.
+3. Klik **<None>** dan masukkan URL berikut:
+   `https://wwwindonesiatv-blip.github.io/dns.kodi/zips/`
+4. Beri nama sumber ini `.DNS` lalu klik OK.
+5. Kembali ke menu utama Kodi, pilih **Add-ons**.
+6. Klik ikon **Package Installer** (kotak terbuka) di pojok kiri atas.
+7. Pilih **Install from zip file** > pilih `.DNS`.
+8. Klik file `repository.dns.google-x.x.x.zip`.
+9. Setelah terpasang, pilih **Install from repository** > **Google DNS Repository**.
+10. Masuk ke **Services** > **Google DNS Auto** > **Install**.
 
-### Method 1: Download ZIP (Paling Mudah) ⭐
+## 📝 Catatan Penting
+* **Hanya Android:** Script ini menggunakan perintah shell `settings put global` yang hanya ada di sistem operasi Android.
+* **Izin Write Settings:** Pada beberapa versi Android, Kodi mungkin memerlukan izin untuk mengubah pengaturan sistem.
+* **Private DNS:** Script ini mengatur Android ke mode "Private DNS Provider Hostname".
 
-1. **Download file ini:**
-- https://wwwindonesiatv-blip.github.io/dns.kodi/
-2. **Install di Kodi:**
-- Add-ons → Install from zip file
-- Pilih file ZIP yang didownload
-- Tunggu notifikasi "DNS Kodi Repository enabled"
+## 🏗️ Struktur Repositori
+- `script.dns.google.auto/`: Kode sumber utama addon (Python).
+- `docs/`: Folder otomatis untuk GitHub Pages (berisi file ZIP dan `addons.xml`).
+- `deploy.yml`: Workflow otomatis yang menangani pembuatan paket ZIP dan update repository.
 
-### Method 2: File Manager (Recommended untuk Firestick)
-
-1. **Di Kodi:** Settings → File Manager → Add source
-2. **URL:** `https://github.com/wwwindonesiatv-blip/dns.kodi/raw/main/`
-3. **Name:** `DNS Kodi Repo`
-4. **OK**
-5. **Install:**
-- Add-ons → Install from zip file
-- Pilih "DNS Kodi Repo"
-- `zips` → `repository.dns.kodi` → install ZIP
-
-## 📥 Install Addon dari Repository
-
-Setelah repository terinstall:
-
-1. **Add-ons** → **Install from repository**
-2. Pilih **"DNS Kodi Repository"**
-3. **Services** → **Google DNS Auto**
-4. Klik **Install**
-5. **Restart Kodi** → DNS otomatis berubah!
-
-## ⚙️ Cara Kerja
-
-Setiap kali Kodi dibuka, DNS otomatis berubah ke:
-- **IPv4:** 8.8.8.8 / 8.8.4.4
-- **IPv6:** 2001:4860:4860::8888 / 2001:4860:4860::8844
-
-## 🔧 Troubleshooting
-
-### Q: Addon tidak jalan?
-**A:** 
-- Pastikan device **Android 9+** (Private DNS feature)
-- Restart Kodi setelah install
-- Cek System → Logging untuk error
-
-### Q: Cara cek DNS sudah berubah?
-**A:** 
-Via ADB:
-```bash
-adb shell settings get global private_dns_specifier
-# Output: dns.google
-
-**B:**
-https://www.dnsleaktest.com
+---
+**Maintained by:** [dns kodi](https://github.com/wwwindonesiatv-blip)
