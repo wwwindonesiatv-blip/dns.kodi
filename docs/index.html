@@ -1,29 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google DNS Repo</title>
+    <title>Google DNS Repository</title>
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: white; text-align: center; padding: 20px; }
-        .card { background: #1e293b; max-width: 500px; margin: 40px auto; padding: 25px; border-radius: 12px; border: 1px solid #334155; }
-        .url { color: #22c55e; font-family: monospace; background: #020617; padding: 12px; border-radius: 6px; margin: 15px 0; word-break: break-all; }
-        li { text-align: left; margin-bottom: 8px; font-size: 0.9em; }
+        :root { --bg: #0f172a; --card: #1e293b; --primary: #38bdf8; --text: #f1f5f9; --accent: #22c55e; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .container { width: 90%; max-width: 500px; background: var(--card); padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); border: 1px solid #334155; text-align: center; }
+        h1 { font-size: 1.8rem; margin: 10px 0; color: var(--primary); }
+        .url-container { background: #020617; padding: 15px; border-radius: 12px; margin: 25px 0; border: 1px dashed var(--primary); }
+        .url-text { font-family: monospace; color: var(--accent); font-size: 1rem; word-break: break-all; }
+        .guide { text-align: left; background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 16px; border: 1px solid #334155; }
+        ol { padding-left: 20px; color: #cbd5e1; font-size: 0.9rem; }
+        li { margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Google DNS Repository</h1>
-        <p>Salin URL ini ke File Manager Kodi:</p>
-        <div class="url">https://wwwindonesiatv-blip.github.io/dns.kodi/zips/</div>
-        <div style="text-align:left;">
-            <strong>Cara Pasang:</strong>
+    <div class="container">
+        <img src="https://wwwindonesiatv-blip.github.io/dns.kodi/icon.png" width="100" style="border-radius:20px" onerror="this.src='https://kodi.tv/assets/images/kodi-logo.png'">
+        <h1>Google DNS Repo</h1>
+        <p>Alamat sumber resmi untuk plugin Auto-Switch Google DNS Kodi.</p>
+        <div class="url-container"><div class="url-text">https://wwwindonesiatv-blip.github.io/dns.kodi/zips/</div></div>
+        <div class="guide">
+            <strong>Panduan Cepat:</strong>
             <ol>
                 <li>Settings > File Manager > Add Source.</li>
-                <li>Masukkan URL di atas, beri nama <b>.DNS</b>.</li>
-                <li>Add-ons > Install from zip file > pilih <b>.DNS</b>.</li>
-                <li>Klik <b>repository.dns.google-1.0.0.zip</b>.</li>
-                <li>Install from repository > Google DNS Repo > Services > Google DNS Auto.</li>
+                <li>Masukkan URL hijau di atas, beri nama <b>.DNS</b>.</li>
+                <li>Add-ons > Install from zip file > <b>.DNS</b>.</li>
+                <li>Pilih <b>repository.dns.google-x.x.x.zip</b>.</li>
             </ol>
         </div>
     </div>
