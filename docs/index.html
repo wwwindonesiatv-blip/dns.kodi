@@ -3,125 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DNS Kodi Repository - Auto DNS Changer</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Google DNS Repository</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: #eee; text-align: center; padding: 50px; }
+        .container { max-width: 800px; margin: auto; background: #2d2d2d; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #4285F4; margin-bottom: 10px; }
+        p { font-size: 1.1em; color: #bbb; }
+        .url-box { background: #111; padding: 15px; border-radius: 8px; border: 1px dashed #4285F4; margin: 20px 0; font-family: monospace; font-size: 1.2em; color: #00ff00; word-break: break-all; }
+        .instruction { text-align: left; background: #383838; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .instruction ol { padding-left: 20px; }
+        .instruction li { margin-bottom: 10px; }
+        .footer { margin-top: 30px; font-size: 0.8em; color: #666; }
+        .badge { background: #4285F4; color: white; padding: 3px 10px; border-radius: 5px; font-size: 0.8em; vertical-align: middle; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🌐 DNS Kodi Repository</h1>
-            <p>Auto DNS Changer for Android Devices</p>
-        </header>
+        <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/icon.png" width="120" alt="Logo">
+        <h1>Google DNS Repository</h1>
+        <p>Official repository for Google DNS Auto-Switch Addon</p>
+        
+        <div class="url-box" id="repo-url">
+            https://YOUR_USERNAME.github.io/YOUR_REPO/zips/
+        </div>
 
-        <!-- Version Info (Auto-Updated) -->
-        <section class="version-info">
-            <div id="versionBox">
-                <p>Latest Version: <span id="latestVersion">Loading...</span></p>
-                <p>Last Updated: <span id="lastUpdated">Loading...</span></p>
-            </div>
-        </section>
-
-        <!-- Quick Install -->
-        <section class="hero">
-            <h2>📥 Quick Install</h2>
-            <div class="install-buttons">
-                <a href="#" id="downloadBtn" class="btn btn-primary">
-                    📦 Download Repository
-                </a>
-                <a href="install.html" class="btn btn-secondary">📖 Install Guide</a>
-            </div>
-        </section>
-
-        <!-- Installation Methods -->
-        <section class="installation">
-            <h2>Installation Methods</h2>
-            
-            <!-- Method 1 -->
-            <div class="install-method">
-                <h3>Method 1: File Manager (Recommended)</h3>
-                <ol>
-                    <li>Kodi → Settings → File Manager → Add source</li>
-                    <li>URL: <code class="highlight" id="repoUrl">https://wwwindonesiatv-blip.github.io/dns.kodi/</code>
-                        <button onclick="copyUrl()" class="copy-btn">📋 Copy</button>
-                    </li>
-                    <li>Name: <code>DNS Kodi Repo</code></li>
-                    <li>Add-ons → Install from zip → DNS Kodi Repo → zips → repository.dns.kodi</li>
-                </ol>
-            </div>
-
-            <!-- Method 2 -->
-            <div class="install-method">
-                <h3>Method 2: Direct Download</h3>
-                <a href="#" id="directDownload" class="download-link">
-                    📦 Download repository.dns.kodi.zip
-                </a>
-            </div>
-        </section>
-
-        <!-- After Install -->
-        <section class="post-install">
-            <h2>After Installation</h2>
+        <div class="instruction">
+            <h3>Cara Install di Kodi:</h3>
             <ol>
-                <li>Add-ons → Install from repository</li>
-                <li>DNS Kodi Repository → Services</li>
-                <li>Google DNS Auto → Install</li>
-                <li>Restart Kodi → DNS auto-changes! ✅</li>
+                <li>Buka Kodi, masuk ke <strong>Settings</strong> (ikon gear).</li>
+                <li>Pilih <strong>File Manager</strong> > <strong>Add Source</strong>.</li>
+                <li>Klik <strong>&lt;None&gt;</strong> dan masukkan URL di atas tepat seperti yang tertulis.</li>
+                <li>Beri nama sumber ini, misalnya: <code>.GoogleDNS</code></li>
+                <li>Kembali ke Home Screen, pilih <strong>Add-ons</strong>.</li>
+                <li>Klik ikon <strong>Package Installer</strong> (box terbuka) di pojok kiri atas.</li>
+                <li>Pilih <strong>Install from zip file</strong>.</li>
+                <li>Cari nama <code>.GoogleDNS</code> dan pilih file <code>repository.dns.google-1.0.0.zip</code>.</li>
+                <li>Setelah terinstall, pilih <strong>Install from repository</strong> > <strong>Google DNS Repository</strong>.</li>
             </ol>
-        </section>
+        </div>
 
-        <footer>
-            <p>Made with ❤️ for Kodi Community</p>
-            <p><a href="https://github.com/wwwindonesiatv-blip/dns.kodi">GitHub</a></p>
-        </footer>
+        <div class="footer">
+            Maintained by Grok_xAI &bull; Powered by GitHub Pages
+        </div>
     </div>
-
-    <!-- Auto-fetch latest version -->
-    <script>
-        // Fetch latest version from addons.xml
-        async function fetchLatestVersion() {
-            try {
-                const response = await fetch('../zips/addons.xml');
-                const text = await response.text();
-                
-                // Parse XML
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(text, 'text/xml');
-                
-                // Get repository version
-                const repoAddon = xml.querySelector('addon[id="repository.dns.kodi"]');
-                const version = repoAddon.getAttribute('version');
-                
-                // Update UI
-                document.getElementById('latestVersion').textContent = version;
-                document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
-                
-                // Update download links
-                const wwwindonesiatv-blip = window.location.hostname.split('.')[0];
-                const repoUrl = `https://${wwwindonesiatv-blip}.github.io/dns.kodi/`;
-                const downloadUrl = `${repoUrl}repository.dns.kodi-${version}.zip`;
-                
-                document.getElementById('repoUrl').textContent = repoUrl;
-                document.getElementById('downloadBtn').href = downloadUrl;
-                document.getElementById('directDownload').href = downloadUrl;
-                
-                console.log('✅ Version fetched:', version);
-                
-            } catch (error) {
-                console.error('Error fetching version:', error);
-                document.getElementById('latestVersion').textContent = '1.0.0 (offline)';
-            }
-        }
-
-        // Copy URL function
-        function copyUrl() {
-            const text = document.getElementById('repoUrl').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('✅ URL copied to clipboard!');
-            });
-        }
-
-        // Run on page load
-        fetchLatestVersion();
-    </script>
 </body>
 </html>
