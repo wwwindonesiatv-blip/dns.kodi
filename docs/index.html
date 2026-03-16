@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DNS Kodi Repository - Installation</title>
+    <title>DNS Kodi Repository - Auto DNS Changer</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,85 +13,115 @@
             <p>Auto DNS Changer for Android Devices</p>
         </header>
 
-        <section class="installation">
+        <!-- Version Info (Auto-Updated) -->
+        <section class="version-info">
+            <div id="versionBox">
+                <p>Latest Version: <span id="latestVersion">Loading...</span></p>
+                <p>Last Updated: <span id="lastUpdated">Loading...</span></p>
+            </div>
+        </section>
+
+        <!-- Quick Install -->
+        <section class="hero">
             <h2>📥 Quick Install</h2>
+            <div class="install-buttons">
+                <a href="#" id="downloadBtn" class="btn btn-primary">
+                    📦 Download Repository
+                </a>
+                <a href="install.html" class="btn btn-secondary">📖 Install Guide</a>
+            </div>
+        </section>
+
+        <!-- Installation Methods -->
+        <section class="installation">
+            <h2>Installation Methods</h2>
             
-            <!-- Method 1: File Manager -->
+            <!-- Method 1 -->
             <div class="install-method">
-                <h3>Method 1: File Manager Source</h3>
+                <h3>Method 1: File Manager (Recommended)</h3>
                 <ol>
-                    <li>Open Kodi → <code>Settings</code> → <code>File Manager</code></li>
-                    <li>Click <code>Add source</code></li>
-                    <li>URL: <code class="highlight">https://USERNAME.github.io/dns.kodi/</code></li>
+                    <li>Kodi → Settings → File Manager → Add source</li>
+                    <li>URL: <code class="highlight" id="repoUrl">https://USERNAME.github.io/dns.kodi/</code>
+                        <button onclick="copyUrl()" class="copy-btn">📋 Copy</button>
+                    </li>
                     <li>Name: <code>DNS Kodi Repo</code></li>
-                    <li>Click <code>OK</code></li>
-                    <li>Go to <code>Add-ons</code> → <code>Install from zip file</code></li>
-                    <li>Select <code>DNS Kodi Repo</code> → <code>zips</code> → <code>repository.dns.kodi</code></li>
-                    <li>Install <code>repository.dns.kodi-1.0.0.zip</code></li>
-                    <li>Wait for notification: <strong>"Repository enabled"</strong></li>
+                    <li>Add-ons → Install from zip → DNS Kodi Repo → zips → repository.dns.kodi</li>
                 </ol>
             </div>
 
-            <!-- Method 2: Direct Download -->
+            <!-- Method 2 -->
             <div class="install-method">
                 <h3>Method 2: Direct Download</h3>
-                <ol>
-                    <li>Download repository ZIP:
-                        <a href="https://USERNAME.github.io/dns.kodi/zips/repository.dns.kodi/repository.dns.kodi-1.0.0.zip" 
-                           class="download-link" download>
-                            📦 repository.dns.kodi-1.0.0.zip
-                        </a>
-                    </li>
-                    <li>Open Kodi → <code>Add-ons</code> → <code>Install from zip file</code></li>
-                    <li>Navigate to downloaded ZIP</li>
-                    <li>Install and wait for confirmation</li>
-                </ol>
-            </div>
-
-            <!-- Method 3: One-Line Install (Advanced) -->
-            <div class="install-method">
-                <h3>Method 3: Command Line (Advanced)</h3>
-                <p>Copy dan paste ke Kodi Add-on Browser URL:</p>
-                <code class="one-liner">https://USERNAME.github.io/dns.kodi/zips/repository.dns.kodi/repository.dns.kodi-1.0.0.zip</code>
+                <a href="#" id="directDownload" class="download-link">
+                    📦 Download repository.dns.kodi.zip
+                </a>
             </div>
         </section>
 
-        <!-- After Install Instructions -->
+        <!-- After Install -->
         <section class="post-install">
-            <h2>📦 Install Addon from Repository</h2>
+            <h2>After Installation</h2>
             <ol>
-                <li><code>Add-ons</code> → <code>Install from repository</code></li>
-                <li>Select <strong>DNS Kodi Repository</strong></li>
-                <li><code>Services</code> → <strong>Google DNS Auto</strong></li>
-                <li>Click <code>Install</code></li>
-                <li>Restart Kodi → DNS automatically changes!</li>
+                <li>Add-ons → Install from repository</li>
+                <li>DNS Kodi Repository → Services</li>
+                <li>Google DNS Auto → Install</li>
+                <li>Restart Kodi → DNS auto-changes! ✅</li>
             </ol>
-        </section>
-
-        <!-- Copy-Paste URL Box -->
-        <section class="copy-url">
-            <h2>📋 Repository URL (Copy This)</h2>
-            <div class="url-box">
-                <input type="text" 
-                       value="https://USERNAME.github.io/dns.kodi/" 
-                       id="repoUrl" 
-                       readonly>
-                <button onclick="copyUrl()">📋 Copy</button>
-            </div>
         </section>
 
         <footer>
             <p>Made with ❤️ for Kodi Community</p>
+            <p><a href="https://github.com/USERNAME/dns.kodi">GitHub</a></p>
         </footer>
     </div>
 
+    <!-- Auto-fetch latest version -->
     <script>
-        function copyUrl() {
-            const input = document.getElementById('repoUrl');
-            input.select();
-            document.execCommand('copy');
-            alert('✅ URL copied to clipboard!');
+        // Fetch latest version from addons.xml
+        async function fetchLatestVersion() {
+            try {
+                const response = await fetch('../zips/addons.xml');
+                const text = await response.text();
+                
+                // Parse XML
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(text, 'text/xml');
+                
+                // Get repository version
+                const repoAddon = xml.querySelector('addon[id="repository.dns.kodi"]');
+                const version = repoAddon.getAttribute('version');
+                
+                // Update UI
+                document.getElementById('latestVersion').textContent = version;
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+                
+                // Update download links
+                const username = window.location.hostname.split('.')[0];
+                const repoUrl = `https://${username}.github.io/dns.kodi/`;
+                const downloadUrl = `${repoUrl}repository.dns.kodi-${version}.zip`;
+                
+                document.getElementById('repoUrl').textContent = repoUrl;
+                document.getElementById('downloadBtn').href = downloadUrl;
+                document.getElementById('directDownload').href = downloadUrl;
+                
+                console.log('✅ Version fetched:', version);
+                
+            } catch (error) {
+                console.error('Error fetching version:', error);
+                document.getElementById('latestVersion').textContent = '1.0.0 (offline)';
+            }
         }
+
+        // Copy URL function
+        function copyUrl() {
+            const text = document.getElementById('repoUrl').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ URL copied to clipboard!');
+            });
+        }
+
+        // Run on page load
+        fetchLatestVersion();
     </script>
 </body>
 </html>
